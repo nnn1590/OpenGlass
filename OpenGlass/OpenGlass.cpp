@@ -14,6 +14,7 @@
 #include "CustomMsstyleLoader.hpp"
 #include "ConfigurationFramework.hpp"
 #include <Windows.h>
+#include <stringapiset.h>
 
 namespace OpenGlass
 {
@@ -466,6 +467,8 @@ do_dwmcore_symbol_parsing:
 	return S_OK;
 }
 
+static FILE* fpLog = nullptr;
+
 void OpenGlass::Startup()
 {
 	if (g_notificationWindow)
@@ -481,8 +484,25 @@ void OpenGlass::Startup()
 		return;
 	}
 
+	if (fpLog = fopen("/openglass.log", "wb")) {
+		fprintf(fpLog, "=== Logging started ===\n");
+	} else {
+		MessageBox(nullptr, TEXT("fopen failed"), TEXT("Error"), MB_ICONERROR | MB_OK);
+	}
+
 	wil::SetResultLoggingCallback([](const wil::FailureInfo& failure) noexcept
 	{
+		if (fpLog) do {
+			auto len = WideCharToMultiByte(CP_UTF8, 0, failure.pszMessage, -1, nullptr, 0, nullptr, nullptr);
+			auto mem = new char[len];
+			auto wlen = WideCharToMultiByte(CP_UTF8, 0, failure.pszMessage, -1, mem, len, nullptr, nullptr);
+			if (len != wlen) {
+				delete[] mem;
+				break;
+			}
+			fprintf(fpLog, "%s\n", mem);
+			delete[] mem;
+		} while (0);
 		OutputDebugStringW(failure.pszMessage);
 	});
 	g_old = SetUnhandledExceptionFilter(TopLevelExceptionFilter);
@@ -499,6 +519,11 @@ void OpenGlass::Shutdown()
 	if (!g_notificationWindow)
 	{
 		return;
+	}
+
+	if (fpLog) {
+		fprintf(fpLog, "=== Logging finished ===\n");
+		fclose(flpLog);
 	}
 
 	if (g_oldWndProc)
