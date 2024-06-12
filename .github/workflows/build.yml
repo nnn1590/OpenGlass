@@ -18,7 +18,7 @@ jobs:
     - name: Build(Debug)
       run: msbuild
     - name: Build(Release)
-      run: msbuild /t:build /p:Configuration=Release'
+      run: msbuild /t:build /p:Configuration=Release
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
