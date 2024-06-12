@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "pch.h"
 #include "resource.h"
 #include "Utils.hpp"
@@ -524,7 +523,7 @@ void OpenGlass::Shutdown()
 
 	if (fpLog) {
 		fprintf(fpLog, "=== Logging finished ===\n");
-		fclose(flpLog);
+		fclose(fpLog);
 	}
 
 	if (g_oldWndProc)
