@@ -1,0 +1,19 @@
+name: Build OpenGlass
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup NuGet.exe for use with actions
+      uses: NuGet/setup-nuget@v2.0.0
+    - name: Enable Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1.13.0
+    - name: Run
+      run: |
+        nuget restore
+        msbuild
